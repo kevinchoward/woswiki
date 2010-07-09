@@ -1,0 +1,202 @@
+<html>
+
+  <head>
+
+    <title>woswiki</title>
+
+    <script type="text/javascript" src="dwr/engine.js"></script>
+    <script type="text/javascript" src="dwr/interface/WikiDelegate.js"></script>
+
+    <script type="text/javascript">
+
+
+      /**
+       * Global DWR error handler.
+       */
+      dwr.engine.setErrorHandler(function(inMessage, inException) {
+        alert(inMessage + "  --  " + inException);
+      });
+
+
+      /**
+       * Reference to the currentArticle object.
+       */
+      var currentArticle = null;
+      
+      
+      /**
+       * Fired onLoad to load the Home article.
+       */    
+      function doOnLoad() {
+
+        WikiDelegate.getArticle("home", null, {
+          callback : function(article) {
+            currentArticle = article;
+            document.getElementById("divArticle").innerHTML = 
+              activateLinks(article.articleText);
+          }
+        });
+        
+      }
+    
+    
+      /**
+       * Activates links in article text.
+       *
+       * @param  inText The article text to activate links in.
+       * @return        The article text with links activated.
+       */
+      function activateLinks(inText) {
+      
+        // Split up article text on spaces.  Each chunk of text is a token.
+        var tokens = inText.split(" ");
+        // For speed, get length of resulting array once.
+        var numTokens = tokens.length;
+        // Iterate over the tokens.
+        for (var i = 0; i < numTokens; i++) {
+          // Get the next token.
+          var token = tokens[i];
+          // If the token's length is greater than 4 then it COULD be a link.
+          if (token.length > 4) {
+            // If the token starts with ~! then it COULD be a link.
+            if (token.indexOf("~!") == 0) {
+              var closeIndicator = token.indexOf("!~");
+              // If we find !~ then it IS a link.
+              if (closeIndicator != -1) {
+                // Extract just the portion of text between the link indicators.
+                var articleTitle = token.substring(2, closeIndicator);
+                // Replace the token with the "activated" version.
+                tokens[i] = "<" + "a href=\"javascript:void(null);\" "+
+                  "onClick=\"" +
+                  "linkClicked('" + articleTitle + "');\">" + 
+                  articleTitle + "<" + "/a>" + token.substr(closeIndicator + 2);
+              }
+            }
+          } 
+        }
+        // Return the article text, re-adding the spaces we removed when the
+        // text was tokenized.
+        return tokens.join(" ");
+              
+      } /* End activateLinks(). */
+    
+    
+      /**
+       * Called when an article link is clicked.
+       *
+       * @param inTitle The title of the article link that was clicked.
+       */
+      function linkClicked(inTitle) {
+
+        WikiDelegate.getArticle(inTitle, null, {
+          callback : function(article) {
+            currentArticle = article;
+            document.getElementById("divArticle").innerHTML = 
+              activateLinks(article.articleText);
+          }
+        });
+              
+      } /* End linkClicked(). */
+     
+     
+     /**
+      * Called to edit the current article.
+      */
+     function editArticle() {
+     
+        WikiDelegate.getArticle(currentArticle.title, 
+          document.getElementById("txtUsername").value, {
+          callback : function(article) {
+            if (document.getElementById("txtUsername").value == 
+              article.lockedBy) {
+              currentArticle = article;
+              document.getElementById("btnSave").disabled = false;
+              document.getElementById("txtArticleEdit").value = 
+                article.articleText;
+              document.getElementById("divArticle").style.display = "none";
+              document.getElementById("txtArticleEdit").style.display = "";
+            } else {
+              alert("Article locked by " + article.lockedBy);
+            }
+          }
+        });      
+     
+     } /* End editArticle(). */
+
+
+     /**
+      * Called to update (save to the server) the current article.
+      */
+     function updateArticle() {
+     
+        currentArticle.articleText = 
+          document.getElementById("txtArticleEdit").value; 
+        WikiDelegate.updateArticle(currentArticle, 
+          document.getElementById("txtUsername").value, {
+          callback : function(article) {
+            currentArticle = article;
+            document.getElementById("btnSave").disabled = true;
+            document.getElementById("txtArticleEdit").value = "";
+            document.getElementById("divArticle").innerHTML = 
+              activateLinks(article.articleText);
+            document.getElementById("divArticle").style.display = "";
+            document.getElementById("txtArticleEdit").style.display = "none";
+          }
+        });      
+     
+     } /* End updateArticle(). */
+
+
+     /**
+      * Called to list all articles.
+      */
+     function listAll() {
+     
+        WikiDelegate.listAll(true, {
+          callback : function(articles) {
+            var l = "";
+            for (var i = 0; i < articles.length; i++) {
+              if (l != "") {
+                l += "<br><br>";
+              }
+              l += "<" + "a href=\"javascript:void(null);\" "+
+                "onClick=\"" +
+                "linkClicked('" + articles[i].title + "');\">" + 
+                articles[i].title + "<" + "/a><br>" +
+                "Last edited by: " + articles[i].lastEditedBy + "<br>" +
+                "Last edited date/time: " + articles[i].lastEditedDateTime + 
+                "<br>Locked by: " + articles[i].lockedBy + "<br>" +
+                "Locked by date/time: " + articles[i].lockedDateTime;                  
+            }
+            document.getElementById("divArticle").innerHTML = l;
+            document.getElementById("btnSave").disabled = true;
+            document.getElementById("txtArticleEdit").value = "";
+            document.getElementById("divArticle").style.display = "";
+            document.getElementById("txtArticleEdit").style.display = "none";            
+          }
+        });      
+     
+     } /* End listAll(). */
+            
+            
+    </script>
+    
+  </head>
+  
+  <body onLoad="doOnLoad();">
+    <input type="button" value="Edit" onClick="editArticle();">
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="text" id="txtUsername" size="20" value="fzammetti">
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="button" value="Save" disabled="true" id="btnSave" 
+      onClick="updateArticle();">
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="button" value="List All" onClick="listAll();">
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <div id="divArticle" 
+      style="position:absolute;left:10px;top:40px;width:640px;height:480px;border:1px solid #ff0000;"></div>
+    <textarea id="txtArticleEdit" cols="77" rows="29" 
+      style="position:absolute;left:10px;top:40px;width:640px;height:480px;display:none;"></textarea>
+  </body>
+
+</html>

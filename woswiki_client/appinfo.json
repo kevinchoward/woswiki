@@ -1,0 +1,9 @@
+{
+	"id": "com.etherient.woswiki",
+	"version": "1.0.0",
+	"vendor": "Etherient",
+	"type": "web",
+	"main": "index.html",
+	"title": "webOS Wiki",
+	"icon": "icon.png"
+}

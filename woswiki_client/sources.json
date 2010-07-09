@@ -1,0 +1,19 @@
+[
+    {"source": "app/assistants/stage-assistant.js"},
+    {
+        "scenes": "wikiList",
+        "source": "app/assistants/wikiList-assistant.js"
+    },
+    {"source": "app/assistants/addWikiDialog-assistant.js"},
+    {"source": "app/woswiki.js"},
+    {"source": "app/dwr/engine.js"},
+    {"source": "app/dwr/WikiDelegate.js"},
+    {
+        "scenes": "viewArticle",
+        "source": "app/assistants/viewArticle-assistant.js"
+    },
+    {
+        "scenes": "editArticle",
+        "source": "app/assistants/editArticle-assistant.js"
+    }
+]

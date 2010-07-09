@@ -1,0 +1,34 @@
+/* Style for the title on the add wiki dialog. */
+.cssAddWikiTitle {
+  position : relative;
+  top : -6px;
+  padding-bottom : 10px;
+  text-align : center;
+  font-size : larger;
+}
+
+
+/* Style for the separator below the title on the add wiki dialog. */
+.cssAddWikiSeparator {
+  position : relative;
+  top : -10px;
+}
+
+
+/* Style for the div where the article is views. */
+.cssArticleView {
+  position : absolute;
+  left : 0px;
+  top : 0px;
+  width : 100%;
+  white-space : pre;
+}
+
+
+/* Style for the instruction text. */
+.cssInstructions {
+  font-size : small;
+  padding-left : 4px;
+  padding-right : 4px;
+  padding-bottom : 4px;
+}

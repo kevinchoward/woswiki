@@ -1,0 +1,10 @@
+1. In order for the webOS emulator to access the local development server,
+   right-click the project, select Properties, then Run/Debug Settings.  Select
+   the run configuration woswiki and click the Edit button.  Go to the Arguments
+   tab.  In the Program Arguments box you should see:
+      --port=8888 C:\PalmWorkspace\woswiki\war
+   ...where the path points to your workspace.  Add to this:
+      --address=aaa.bbb.ccc.ddd
+   ...where aaa.bbb.ccc.ddd is the IP address of your local machine.  You
+   should then be able to access the development server via IP address instead
+   of just localhost, and this should work from the emulator as well.
